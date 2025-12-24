@@ -1,0 +1,45 @@
+---
+- name: Install Docker on Ubuntu VM
+  hosts: ahmed22          # This is your VM's hostname (matches the hostname you see in the prompt)
+  become: yes             # Run tasks as root (sudo)
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu noble stable   # Changed to "noble" for Ubuntu 24.04
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group (so you can run docker without sudo)
+      user:
+        name: ahmed22          # Your actual VM username (matches the prompt ahmed22@Ubuntu3)
+        groups: docker
+        append: yes
